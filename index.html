@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محاكي فحص السيارات</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="scanner-container">
+        <h2>جهاز الفحص الذكي</h2>
+        <div class="screen">
+            <div class="data-line">سرعة المحرك: <span id="rpm" class="value">800</span> RPM</div>
+            <div class="data-line">جهد الحساس: <span id="maf" class="value">2.5</span> فولت</div>
+            <div id="msg" class="status-text">النظام متصل...</div>
+        </div>
+        <div class="button-panel">
+            <button class="btn-good" onclick="updateStatus('good')">حالة سليمة</button>
+            <button class="btn-dirty" onclick="updateStatus('dirty')">حساس متسخ</button>
+            <button class="btn-fail" onclick="updateStatus('disconnect')">حساس مفصول</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
