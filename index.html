@@ -2,30 +2,62 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>محاكي تشخيص السيارات المتكامل</title>
+    <title>محاكي تشخيص الأعطال - نظام كامل</title>
     <style>
-        body { background-color: #1a1a1a; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        
-        /* اللوحة الرئيسية الرمادية */
-        .dashboard-panel {
-            background: linear-gradient(145deg, #8e8e8e, #5a5a5a);
-            padding: 25px;
-            border-radius: 30px;
-            box-shadow: 20px 20px 40px #000;
-            border: 2px solid #999;
-            width: 550px;
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: #2c3e50; display: flex; height: 100vh; overflow: hidden; }
+
+        /* القائمة الجانبية (الأدوات) */
+        .sidebar {
+            width: 250px;
+            background-color: #ffffff;
+            border-left: 2px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            box-shadow: -2px 0 5px rgba(0,0,0,0.1);
         }
 
-        .gauges-row { display: flex; justify-content: space-around; align-items: center; margin-bottom: 20px; }
+        .tool-item {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            color: #333;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
 
-        /* تصميم العدادات */
-        .gauge {
+        .tool-item:hover { background-color: #f5f5f5; }
+
+        /* منطقة العمل المركزية */
+        .workspace {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             position: relative;
-            width: 160px;
-            height: 160px;
-            background: radial-gradient(circle, #222, #000);
-            border: 8px solid #333;
+            background: radial-gradient(circle, #444, #111);
+        }
+
+        /* لوحة العدادات (المحاكي) */
+        .dashboard-panel {
+            background: linear-gradient(145deg, #bdc3c7, #95a5a6);
+            padding: 25px;
+            border-radius: 20px;
+            width: 500px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        .gauges-row { display: flex; justify-content: space-around; margin-bottom: 20px; }
+
+        .gauge {
+            width: 140px; height: 140px;
+            background: #000;
+            border: 6px solid #333;
             border-radius: 50%;
+            position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -33,128 +65,82 @@
 
         .needle {
             position: absolute;
-            width: 3px;
-            height: 70px;
-            background: red;
+            width: 3px; height: 60px;
+            background: #e74c3c;
             bottom: 50%;
             transform-origin: bottom center;
             transform: rotate(-90deg);
-            transition: transform 0.2s;
+            transition: transform 0.1s;
         }
 
-        /* لمبات التحذير */
-        .warning-block {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            background: #222;
-            padding: 10px;
-            border-radius: 10px;
-            border: 1px solid #444;
+        .warning-lights {
+            display: flex; flex-direction: column; gap: 10px;
+            background: #111; padding: 10px; border-radius: 8px;
         }
 
-        .light { font-size: 22px; opacity: 0.1; cursor: pointer; filter: grayscale(1); }
+        .light { font-size: 20px; opacity: 0.1; filter: grayscale(1); cursor: pointer; }
         .light.active { opacity: 1; filter: grayscale(0); }
-        .light.active.oil { color: #ff0000; text-shadow: 0 0 10px red; }
-        .light.active.battery { color: #ff0000; }
-        .light.active.engine { color: #ffcc00; }
 
-        /* التحكم بالسلايدر والمفتاح */
-        .controls-row { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding: 0 20px; }
+        .controls { margin-top: 20px; text-align: center; color: #333; }
+        input[type=range] { width: 100%; }
 
-        .pedal-box { width: 60%; }
-        input[type=range] { width: 100%; cursor: pointer; }
-
-        /* مفتاح التشغيل الدوار */
-        .ignition-switch {
-            width: 60px;
-            height: 60px;
-            background: radial-gradient(circle, #777, #333);
-            border: 3px solid #444;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: 0.3s;
-            position: relative;
-        }
-        .ignition-switch::after {
-            content: "";
-            position: absolute;
-            width: 4px;
-            height: 25px;
-            background: #eee;
-            top: 5px;
-            left: 28px;
-            border-radius: 2px;
-        }
-
-        .label { font-size: 12px; color: #333; font-weight: bold; margin-top: 5px; }
     </style>
 </head>
 <body>
 
-<div class="dashboard-panel">
-    <div class="gauges-row">
-        <div class="gauge">
-            <div class="needle" id="rpmNeedle"></div>
-            <div style="position:absolute; bottom:25%; font-size:10px;">RPM x1000</div>
-        </div>
+    <div class="workspace">
+        <div class="dashboard-panel">
+            <div class="gauges-row">
+                <div class="gauge">
+                    <div class="needle" id="rpmNeedle"></div>
+                    <span style="position:absolute; bottom:20%; font-size:10px; color:white;">RPM</span>
+                </div>
 
-        <div class="warning-block">
-            <div class="light battery" onclick="this.classList.toggle('active')">🔋</div>
-            <div class="light oil" onclick="this.classList.toggle('active')">🛢️</div>
-            <div class="light engine" id="engineLight" onclick="this.classList.toggle('active')">⚙️</div>
-        </div>
+                <div class="warning-lights">
+                    <div class="light" id="bat">🔋</div>
+                    <div class="light" id="oil">🛢️</div>
+                    <div class="light" id="eng">⚙️</div>
+                </div>
 
-        <div class="gauge">
-            <div class="needle" id="tempNeedle" style="transform: rotate(-30deg);"></div>
-            <div style="position:absolute; bottom:25%; font-size:10px;">TEMP °C</div>
-        </div>
-    </div>
+                <div class="gauge">
+                    <div class="needle" id="tempNeedle" style="transform: rotate(-40deg);"></div>
+                    <span style="position:absolute; bottom:20%; font-size:10px; color:white;">TEMP</span>
+                </div>
+            </div>
 
-    <div class="controls-row">
-        <div class="pedal-box">
-            <input type="range" id="pedal" min="0" max="8000" value="0">
-            <div class="label">وضع الدواسة: <span id="rpmText">0</span> RPM</div>
-        </div>
-
-        <div style="text-align:center;">
-            <div class="ignition-switch" id="key" onclick="rotateKey()"></div>
-            <div class="label">تشغيل</div>
+            <div class="controls">
+                <input type="range" id="pedal" min="0" max="8000" value="0">
+                <p>دواسة الوقود: <span id="rpmVal">0</span></p>
+            </div>
         </div>
     </div>
-</div>
 
-<script>
-    const rpmNeedle = document.getElementById('rpmNeedle');
-    const tempNeedle = document.getElementById('tempNeedle');
-    const pedal = document.getElementById('pedal');
-    const rpmText = document.getElementById('rpmText');
-    const engineLight = document.getElementById('engineLight');
+    <div class="sidebar">
+        <h3 style="font-size: 16px; border-bottom: 2px solid #e74c3c; padding-bottom: 5px;">أدوات التشخيص</h3>
+        <div class="tool-item">🔑 لوحة القيادة</div>
+        <div class="tool-item">📟 مقياس متعدد (Multimeter)</div>
+        <div class="tool-item">📉 كاشف الاهتزازات</div>
+        <div class="tool-item">💻 نظام التشخيص</div>
+        <div class="tool-item">🔌 مخطط الأسلاك</div>
+        <div class="tool-item">📝 أمر العمل</div>
+    </div>
 
-    // تحريك عداد RPM
-    pedal.addEventListener('input', (e) => {
-        let val = e.target.value;
-        let deg = (val / 8000) * 180 - 90;
-        rpmNeedle.style.transform = `rotate(${deg}deg)`;
-        rpmText.innerText = val;
+    <script>
+        const rpmNeedle = document.getElementById('rpmNeedle');
+        const pedal = document.getElementById('pedal');
+        const rpmVal = document.getElementById('rpmVal');
+        const engLight = document.getElementById('eng');
 
-        // إذا زاد الضغط تزيد الحرارة قليلاً بشكل تلقائي
-        let tempDeg = (val / 8000) * 50 - 30; 
-        tempNeedle.style.transform = `rotate(${tempDeg}deg)`;
+        pedal.addEventListener('input', (e) => {
+            let val = e.target.value;
+            let deg = (val / 8000) * 180 - 90;
+            rpmNeedle.style.transform = `rotate(${deg}deg)`;
+            rpmVal.innerText = val;
 
-        // لمبة المحرك تضيء تلقائياً عند السرعة العالية جداً
-        if(val > 7000) engineLight.classList.add('active');
-        else engineLight.classList.remove('active');
-    });
-
-    // تحريك مفتاح التشغيل
-    let keyPos = 0;
-    function rotateKey() {
-        keyPos += 45;
-        if (keyPos > 90) keyPos = 0;
-        document.getElementById('key').style.transform = `rotate(${keyPos}deg)`;
-    }
-</script>
-
+            // محاكاة عطل: إذا زاد الـ RPM عن 7000 تضيء لمبة المحرك
+            if(val > 7000) engLight.classList.add('active');
+            else engLight.classList.remove('active');
+        });
+    </script>
 </body>
 </html>
