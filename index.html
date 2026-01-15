@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تحكم Electude المتكاملة</title>
+    <title>لوحة تحكم كاملة - محاكي الأعطال</title>
     <style>
-        /* إعدادات الصفحة العامة */
         body { 
             background-color: #1a1a1a; 
             color: white; 
@@ -23,7 +22,7 @@
             padding: 30px;
             border-radius: 25px;
             box-shadow: 15px 15px 30px rgba(0,0,0,0.6), inset 2px 2px 10px rgba(255,255,255,0.3);
-            width: 320px;
+            width: 340px;
             text-align: center;
             border: 1px solid #999;
         }
@@ -46,64 +45,71 @@
         /* إبرة العداد الحمراء */
         .needle {
             position: absolute;
-            width: 3px;
+            width: 4px;
             height: 85px;
             background: #ff0000;
             bottom: 50%;
-            left: calc(50% - 1.5px);
+            left: calc(50% - 2px);
             transform-origin: bottom center;
             transform: rotate(-90deg);
             transition: transform 0.1s ease-out;
             z-index: 10;
-            box-shadow: 0 0 5px rgba(255,0,0,0.5);
         }
 
         .center-cap {
             position: absolute;
-            width: 16px;
-            height: 16px;
+            width: 20px;
+            height: 20px;
             background: #444;
             border-radius: 50%;
             z-index: 11;
+            border: 2px solid #222;
         }
 
         /* حاوية لمبات التحذير */
         .warning-lights {
             display: flex;
             justify-content: center;
-            gap: 20px;
-            background: rgba(0,0,0,0.2);
-            padding: 10px;
-            border-radius: 12px;
+            gap: 25px;
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 15px;
             margin-bottom: 20px;
+            border: 1px solid #777;
         }
 
         /* تصميم اللمبات (مطفأة) */
         .light {
-            font-size: 26px;
-            opacity: 0.2;
+            font-size: 28px;
+            opacity: 0.1;
             cursor: pointer;
             transition: 0.3s;
             filter: grayscale(100%);
         }
 
-        /* تصميم اللمبات (مضاءة) */
-        .light.active { opacity: 1; filter: grayscale(0%); }
-        .light.active.battery { color: #ff3300; text-shadow: 0 0 15px #ff3300; }
-        .light.active.oil { color: #ff3300; text-shadow: 0 0 15px #ff3300; }
-        .light.active.engine { color: #ffcc00; text-shadow: 0 0 15px #ffcc00; }
+        /* تأثير الإضاءة عند النقر */
+        .light.active { 
+            opacity: 1; 
+            filter: grayscale(0%); 
+            transform: scale(1.1);
+        }
+        
+        .light.active.battery { color: #ff3300; text-shadow: 0 0 20px #ff3300; }
+        .light.active.oil { color: #ff3300; text-shadow: 0 0 20px #ff3300; }
+        .light.active.engine { color: #ffcc00; text-shadow: 0 0 20px #ffcc00; }
 
-        /* الدواسة */
         .controls input {
             width: 100%;
             cursor: pointer;
+            margin-top: 10px;
         }
 
         .rpm-display {
-            font-size: 20px;
+            font-size: 22px;
             margin-top: 10px;
-            color: #222;
+            color: #00d4ff;
             font-weight: bold;
+            text-shadow: 0 0 10px rgba(0,212,255,0.5);
         }
     </style>
 </head>
@@ -116,14 +122,15 @@
     </div>
 
     <div class="warning-lights">
-        <div class="light battery" title="البطارية" onclick="this.classList.toggle('active')">🔋</div>
-        <div class="light oil" title="ضغط الزيت" onclick="this.classList.toggle('active')">🛢️</div>
-        <div class="light engine" title="فحص المحرك" onclick="this.classList.toggle('active')">⚙️</div>
+        <div class="light battery" onclick="this.classList.toggle('active')">🔋</div>
+        <div class="light oil" onclick="this.classList.toggle('active')">🛢️</div>
+        <div class="light engine" onclick="this.classList.toggle('active')">⚙️</div>
     </div>
 
     <div class="controls">
+        <label style="color: #333; font-weight: bold;">وضع الدواسة (السرعة)</label>
         <input type="range" id="pedal" min="0" max="8000" value="0">
-        <div class="rpm-display"><span id="rpmVal">0</span> RPM</div>
+        <div class="rpm-display">RPM <span id="rpmVal">0</span></div>
     </div>
 </div>
 
@@ -132,10 +139,8 @@
     const pedal = document.getElementById('pedal');
     const rpmVal = document.getElementById('rpmVal');
 
-    // وظيفة تحريك الإبرة مع السلايدر
     pedal.addEventListener('input', (e) => {
         const val = e.target.value;
-        // حساب الزاوية من -90 إلى 90 درجة
         const deg = (val / 8000) * 180 - 90;
         needle.style.transform = `rotate(${deg}deg)`;
         rpmVal.innerText = val;
