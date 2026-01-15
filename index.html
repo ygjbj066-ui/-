@@ -2,141 +2,131 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>محاكي سوناتا 2011 - نظام فحص متكامل</title>
+    <title>محاكي سوناتا 2011 المطور</title>
     <style>
-        :root { --main-red: #e74c3c; --panel-gray: #ecf0f1; }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background-color: #2c3e50; font-family: sans-serif; display: flex; height: 100vh; overflow: hidden; }
-
+        body { background-color: #1a1a1a; color: white; font-family: sans-serif; margin: 0; display: flex; height: 100vh; }
+        
         /* القائمة الجانبية */
-        .sidebar { width: 240px; background: white; border-left: 2px solid #ddd; z-index: 100; }
-        .sidebar-header { padding: 15px; background: var(--main-red); color: white; font-weight: bold; text-align: center; }
-        .tool-item { padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 10px; }
-        .tool-item:hover { background: #f9f9f9; color: var(--main-red); }
+        .sidebar { width: 250px; background: #fff; color: #333; border-left: 2px solid #ddd; padding: 10px; z-index: 100; }
+        .sidebar h3 { font-size: 16px; border-bottom: 2px solid red; padding-bottom: 5px; }
+        .tool-btn { padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; transition: 0.3s; }
+        .tool-btn:hover { background: #f0f0f0; color: red; }
 
-        /* منطقة السيارة */
-        .stage { flex-grow: 1; position: relative; background: radial-gradient(circle, #555, #111); overflow: hidden; display: flex; justify-content: center; align-items: center; }
-        .car-image { width: 85%; max-width: 900px; filter: drop-shadow(0 20px 50px black); transition: 0.5s; }
+        /* منطقة العرض */
+        .main-stage { flex-grow: 1; position: relative; background: radial-gradient(circle, #444, #111); display: flex; justify-content: center; align-items: center; }
+        
+        /* صورة السوناتا */
+        .car-display { width: 80%; max-width: 700px; border-radius: 15px; box-shadow: 0 0 50px rgba(0,0,0,0.8); }
 
         /* النوافذ المنبثقة */
-        .floating-window {
-            position: absolute; background: var(--panel-gray); border-radius: 15px; 
-            box-shadow: 0 15px 40px rgba(0,0,0,0.6); padding: 15px; z-index: 200; 
-            display: none; cursor: move; border: 2px solid #bdc3c7;
-        }
-        .win-header { display: flex; justify-content: space-between; font-weight: bold; border-bottom: 1px solid #ccc; margin-bottom: 10px; padding-bottom: 5px; }
-        .close-btn { color: red; cursor: pointer; }
+        .window { position: absolute; background: #ecf0f1; border-radius: 12px; padding: 15px; color: #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: none; z-index: 200; cursor: move; border: 2px solid #bdc3c7; }
+        .win-header { display: flex; justify-content: space-between; font-weight: bold; border-bottom: 1px solid #ccc; margin-bottom: 10px; }
 
-        /* تصميم الملتيميتر */
-        .multimeter-ui { background: #f1c40f; padding: 15px; border-radius: 10px; border: 4px solid #f39c12; width: 180px; text-align: center; }
-        .m-display { background: #95a5a6; color: #111; font-family: 'Courier New', monospace; font-size: 24px; padding: 5px; border-radius: 5px; margin-bottom: 10px; box-shadow: inset 0 0 5px black; }
-        .probe { width: 15px; height: 15px; border-radius: 50%; display: inline-block; }
+        /* جهاز الفحص الذكي (من صورتك) */
+        .smart-scanner { background: #222; color: #0f0; padding: 15px; border-radius: 10px; border: 3px solid #333; text-align: right; }
+        .status-btn { width: 100%; padding: 10px; margin-top: 5px; border: none; border-radius: 5px; color: white; cursor: pointer; font-weight: bold; }
 
-        /* لوحة العدادات */
-        .dash-ui { background: #000; padding: 15px; border-radius: 15px; width: 320px; text-align: center; }
-        .gauge { width: 100px; height: 100px; border: 3px solid #333; border-radius: 50%; position: relative; display: inline-flex; justify-content: center; align-items: center; }
-        .needle { position: absolute; width: 2px; height: 45px; background: red; bottom: 50%; transform-origin: bottom center; transform: rotate(-90deg); }
+        /* العدادات */
+        .gauge-box { background: #000; padding: 15px; border-radius: 15px; text-align: center; }
+        .needle { width: 3px; height: 50px; background: red; position: absolute; bottom: 50%; left: 50%; transform-origin: bottom center; transform: rotate(-90deg); }
     </style>
 </head>
 <body>
 
-    <aside class="sidebar">
-        <div class="sidebar-header">سوناتا 2011 - فحص</div>
-        <div class="tool-item" onclick="showWin('dashWin')">🔑 لوحة القيادة</div>
-        <div class="tool-item" onclick="showWin('multiWin')">📟 مقياس متعدد (Multimeter)</div>
-        <div class="tool-item">🔌 مخطط الأسلاك</div>
-    </aside>
+<aside class="sidebar">
+    <h3>أدوات التشخيص</h3>
+    <div class="tool-btn" onclick="toggleWin('dashWin')">🔑 لوحة القيادة</div>
+    <div class="tool-btn" onclick="toggleWin('scanWin')">📟 جهاز الفحص الذكي</div>
+    <div class="tool-btn" onclick="toggleWin('multiWin')">📏 مقياس متعدد</div>
+</aside>
 
-    <main class="stage">
-        <img src="https://images.sayarti.com/hyundai/sonata/2011/gallery/hyundai_sonata_2011_1.jpg" class="car-image" alt="Sonata 2011">
+<main class="main-stage">
+    <img src="https://www.motortrend.com/uploads/sites/10/2015/11/2011-hyundai-sonata-gls-sedan-angular-front.png" class="car-display" alt="Sonata 2011">
 
-        <div id="dashWin" class="floating-window" style="top: 20px; left: 20px;">
-            <div class="win-header"><span>العدادات</span><span class="close-btn" onclick="showWin('dashWin')">✖</span></div>
-            <div class="dash-ui">
-                <div class="gauge"><div class="needle" id="needle"></div></div>
-                <button id="startBtn" style="width:100%; margin-top:10px; padding:8px; cursor:pointer; background:green; color:white; border:none; border-radius:5px;">START</button>
-                <input type="range" id="pedal" min="0" max="8000" value="0" style="width:100%; margin-top:10px;">
-                <p style="color:cyan; margin-top:5px;">RPM: <span id="rpmVal">0</span></p>
+    <div id="dashWin" class="window" style="top: 20px; right: 20px; width: 300px;">
+        <div class="win-header"><span>لوحة العدادات</span><span onclick="toggleWin('dashWin')" style="cursor:pointer;color:red">✖</span></div>
+        <div class="gauge-box">
+            <div style="width:100px; height:100px; border:3px solid #444; border-radius:50%; margin:auto; position:relative;">
+                <div id="needle" class="needle"></div>
             </div>
+            <input type="range" id="pedal" min="0" max="8000" value="0" style="width:100%; margin-top:15px;">
+            <p style="color:cyan;">RPM: <span id="rpmVal">0</span></p>
+            <button id="startBtn" style="width:100%; background:green; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer;">START</button>
         </div>
+    </div>
 
-        <div id="multiWin" class="floating-window" style="top: 50px; right: 50px;">
-            <div class="win-header"><span>Multimeter</span><span class="close-btn" onclick="showWin('multiWin')">✖</span></div>
-            <div class="multimeter-ui">
-                <div class="m-display" id="mDisplay">0.00 V</div>
-                <div style="font-size:12px; font-weight:bold;">HYUNDAI DIAGNOSTIC</div>
-                <div style="margin-top:10px;">
-                    <span class="probe" style="background:red;"></span> 
-                    <span class="probe" style="background:black;"></span>
-                </div>
-            </div>
+    <div id="scanWin" class="window" style="bottom: 20px; left: 20px; width: 280px;">
+        <div class="win-header"><span>جهاز الفحص الذكي</span><span onclick="toggleWin('scanWin')" style="cursor:pointer;color:red">✖</span></div>
+        <div class="smart-scanner">
+            <div>سرعة المحرك: <span id="scanRpm">0</span> RPM</div>
+            <div>جهد الحساس: <span id="scanVolt">0.5</span> فولت</div>
+            <div style="margin-top:10px; font-size:12px; color:#fff;">الحالة: <span id="statusLabel">نظام سليم ✅</span></div>
         </div>
-    </main>
+        <button class="status-btn" style="background:#27ae60;" onclick="setStatus('سليم')">حالة سليمة</button>
+        <button class="status-btn" style="background:#f39c12;" onclick="setStatus('متسخ')">حساس متسخ</button>
+        <button class="status-btn" style="background:#e74c3c;" onclick="setStatus('مفصول')">حساس مفصول</button>
+    </div>
+</main>
 
-    <script>
-        let audioCtx, osc, gain;
-        let running = false;
+<script>
+    let running = false;
+    function toggleWin(id) {
+        const w = document.getElementById(id);
+        w.style.display = (w.style.display === 'block') ? 'none' : 'block';
+    }
 
-        // وظيفة النوافذ
-        function showWin(id) {
-            const w = document.getElementById(id);
-            w.style.display = (w.style.display === 'block') ? 'none' : 'block';
+    const pedal = document.getElementById('pedal');
+    const needle = document.getElementById('needle');
+    const rpmVal = document.getElementById('rpmVal');
+    const scanRpm = document.getElementById('scanRpm');
+    const scanVolt = document.getElementById('scanVolt');
+
+    pedal.oninput = (e) => {
+        if(!running) { e.target.value = 0; return; }
+        let v = e.target.value;
+        rpmVal.innerText = v;
+        scanRpm.innerText = v;
+        needle.style.transform = `rotate(${(v/8000)*180-90}deg)`;
+        
+        // محاكاة الجهد (Voltage)
+        let voltage = (v / 8000 * 4) + 0.5;
+        scanVolt.innerText = voltage.toFixed(1);
+    };
+
+    document.getElementById('startBtn').onclick = function() {
+        running = !running;
+        this.innerText = running ? "STOP" : "START";
+        this.style.background = running ? "red" : "green";
+    };
+
+    function setStatus(state) {
+        const label = document.getElementById('statusLabel');
+        if(state === 'مفصول') {
+            label.innerText = "عطل: حساس مفصول ❌";
+            label.style.color = "red";
+        } else if(state === 'متسخ') {
+            label.innerText = "تنبيه: حساس متسخ ⚠️";
+            label.style.color = "orange";
+        } else {
+            label.innerText = "نظام سليم ✅";
+            label.style.color = "#0f0";
         }
+    }
 
-        // تحريك النوافذ
-        document.querySelectorAll('.floating-window').forEach(win => {
-            win.onmousedown = (e) => {
-                if(e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
-                let ox = e.clientX - win.offsetLeft;
-                let oy = e.clientY - win.offsetTop;
-                document.onmousemove = (ev) => {
-                    win.style.left = ev.clientX - ox + 'px';
-                    win.style.top = ev.clientY - oy + 'px';
-                };
+    // كود تحريك النوافذ
+    document.querySelectorAll('.window').forEach(w => {
+        w.onmousedown = function(e) {
+            if(e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+            let x = e.clientX - w.offsetLeft;
+            let y = e.clientY - w.offsetTop;
+            document.onmousemove = function(ev) {
+                w.style.left = ev.clientX - x + 'px';
+                w.style.top = ev.clientY - y + 'px';
             };
-            document.onmouseup = () => document.onmousemove = null;
-        });
-
-        // الصوت والمحرك
-        function initSound() {
-            audioCtx = new AudioContext();
-            osc = audioCtx.createOscillator();
-            gain = audioCtx.createGain();
-            osc.type = 'sawtooth';
-            osc.frequency.value = 50;
-            gain.gain.value = 0;
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-        }
-
-        const startBtn = document.getElementById('startBtn');
-        startBtn.onclick = () => {
-            if(!audioCtx) initSound();
-            if(!running) {
-                gain.gain.setTargetAtTime(0.1, audioCtx.currentTime, 0.1);
-                startBtn.innerText = "STOP"; startBtn.style.background = "red";
-                running = true;
-            } else {
-                gain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
-                startBtn.innerText = "START"; startBtn.style.background = "green";
-                running = false;
-                document.getElementById('needle').style.transform = `rotate(-90deg)`;
-            }
+            document.onmouseup = function() { document.onmousemove = null; };
         };
+    });
+</script>
 
-        const pedal = document.getElementById('pedal');
-        pedal.oninput = (e) => {
-            if(!running) { e.target.value = 0; return; }
-            let v = e.target.value;
-            document.getElementById('rpmVal').innerText = v;
-            document.getElementById('needle').style.transform = `rotate(${(v/8000)*180-90}deg)`;
-            osc.frequency.setTargetAtTime(50 + (v/30), audioCtx.currentTime, 0.05);
-            
-            // تحديث قيمة الملتيميتر (محاكاة جهد الحساس)
-            let voltage = (v / 8000 * 4) + 0.5; 
-            document.getElementById('mDisplay').innerText = voltage.toFixed(2) + " V";
-        };
-    </script>
 </body>
 </html>
