@@ -2,198 +2,155 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>محاكي مهندس السيارات المحترف</title>
+    <title>محاكي Electude الاحترافي مع الصوت</title>
     <style>
-        :root {
-            --sidebar-width: 260px;
-            --primary-red: #e74c3c;
-            --bg-dark: #1e1e1e;
-        }
-
+        :root { --main-gray: #bdc3c7; --dark-gray: #2c3e50; --electude-red: #e74c3c; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, sans-serif;
-            background-color: #34495e;
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-        }
+        body { background-color: #1a1a1a; font-family: sans-serif; display: flex; height: 100vh; overflow: hidden; }
 
         /* القائمة الجانبية */
-        .sidebar {
-            width: var(--sidebar-width);
-            background: #ffffff;
-            border-left: 2px solid #ddd;
-            display: flex;
-            flex-direction: column;
-            z-index: 100;
+        .sidebar { width: 260px; background: white; border-left: 2px solid #ddd; z-index: 10; display: flex; flex-direction: column; }
+        .sidebar-header { padding: 15px; background: var(--electude-red); color: white; font-weight: bold; }
+        .tool-item { padding: 12px 20px; border-bottom: 1px solid #eee; cursor: pointer; color: #333; transition: 0.2s; font-size: 14px; }
+        .tool-item:hover { background: #f1f1f1; color: var(--electude-red); }
+
+        /* منطقة المحرك والسيارة */
+        .engine-bay { flex-grow: 1; background: radial-gradient(circle, #444, #111); display: flex; justify-content: center; align-items: center; position: relative; }
+        .engine-img { width: 80%; opacity: 0.6; filter: grayscale(50%); }
+
+        /* نافذة لوحة القيادة المنبثقة */
+        .dash-window {
+            position: absolute; background: linear-gradient(145deg, #95a5a6, #7f8c8d);
+            width: 380px; padding: 20px; border-radius: 20px; border: 2px solid #bdc3c7;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.7); cursor: move;
         }
 
-        .sidebar-header {
-            padding: 20px;
-            background: var(--primary-red);
-            color: white;
-            font-weight: bold;
-            font-size: 1.1rem;
-        }
+        .gauges-container { display: flex; justify-content: space-between; align-items: center; background: #000; padding: 15px; border-radius: 15px; border: 5px solid #333; }
+        .gauge { position: relative; width: 120px; height: 120px; border: 4px solid #444; border-radius: 50%; display: flex; justify-content: center; align-items: center; }
+        .needle { position: absolute; width: 3px; height: 50px; background: red; bottom: 50%; transform-origin: bottom center; transform: rotate(-90deg); transition: 0.1s; z-index: 5; }
+        
+        .warning-lights { display: flex; flex-direction: column; gap: 8px; }
+        .light { font-size: 18px; opacity: 0.1; filter: grayscale(1); transition: 0.3s; }
+        .light.active { opacity: 1; filter: grayscale(0); }
 
-        .tool-list { list-style: none; overflow-y: auto; }
-
-        .tool-item {
-            padding: 15px 20px;
-            border-bottom: 1px solid #eee;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: 0.2s;
-            color: #2c3e50;
-        }
-
-        .tool-item:hover { background: #f8f9fa; color: var(--primary-red); }
-        .tool-item i { font-style: normal; font-size: 1.2rem; }
-
-        /* منطقة العمل الرئيسية */
-        .main-stage {
-            flex-grow: 1;
-            position: relative;
-            background: radial-gradient(circle, #555, #111);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .car-view {
-            width: 80%;
-            max-width: 800px;
-            filter: drop-shadow(0 20px 30px rgba(0,0,0,0.5));
-        }
-
-        /* النوافذ المنبثقة (Floating Windows) */
-        .window {
-            position: absolute;
-            background: #ecf0f1;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-            padding: 20px;
-            width: 320px;
-            display: none; /* مخفية افتراضياً */
-            cursor: move;
-            z-index: 200;
-        }
-
-        .window-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #bdc3c7;
-            padding-bottom: 5px;
-            color: #333;
-            font-weight: bold;
-        }
-
-        .close-btn { cursor: pointer; color: red; }
-
-        /* تصميم لوحة القيادة داخل النافذة */
-        .dash-ui {
-            background: #111;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-        }
-
-        .gauge-small {
-            width: 120px; height: 120px;
-            border: 5px solid #333;
-            border-radius: 50%;
-            margin: 0 auto 10px;
-            position: relative;
-        }
-
-        .needle-small {
-            position: absolute;
-            width: 2px; height: 50px;
-            background: red;
-            bottom: 50%; left: 50%;
-            transform-origin: bottom center;
-            transform: rotate(-90deg);
-        }
-
-        input[type=range] { width: 100%; margin-top: 10px; cursor: pointer; }
+        .pedal-box { margin-top: 20px; text-align: center; }
+        input[type=range] { width: 100%; height: 10px; cursor: pointer; }
+        .start-btn { margin-top: 15px; padding: 10px; width: 100%; border-radius: 10px; border: none; background: #27ae60; color: white; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <aside class="sidebar">
-        <div class="sidebar-header">محاكي Electude</div>
-        <ul class="tool-list">
-            <li class="tool-item" onclick="toggleWindow('dashWindow')">🔑 <span>لوحة القيادة</span></li>
-            <li class="tool-item">📟 <span>مقياس متعدد (Multimeter)</span></li>
-            <li class="tool-item">📉 <span>كاشف الاهتزازات</span></li>
-            <li class="tool-item">💻 <span>نظام التشخيص</span></li>
-            <li class="tool-item">🔌 <span>مخطط الأسلاك</span></li>
-        </ul>
+        <div class="sidebar-header">نظام تشخيص Electude</div>
+        <div class="tool-item">🔑 لوحة القيادة</div>
+        <div class="tool-item">📟 مقياس متعدد (Multimeter)</div>
+        <div class="tool-item">💻 نظام التشخيص</div>
+        <div class="tool-item">🔌 مخطط الأسلاك</div>
     </aside>
 
-    <main class="main-stage">
-        <div style="color: white; text-align: center;">
-            <p>منطقة فحص المركبة</p>
-            <small>(تظهر هنا صورة السيارة من الأعلى أو المحرك)</small>
-        </div>
-
-        <div id="dashWindow" class="window" style="top: 50px; left: 50px;">
-            <div class="window-header">
-                <span>لوحة التحكم</span>
-                <span class="close-btn" onclick="toggleWindow('dashWindow')">✖</span>
-            </div>
-            <div class="dash-ui">
-                <div class="gauge-small">
-                    <div id="needle" class="needle-small"></div>
-                    <div style="color:white; font-size:10px; margin-top:80px;">RPM</div>
+    <main class="engine-bay">
+        <div class="dash-window" id="dash">
+            <div class="gauges-container">
+                <div class="gauge">
+                    <div class="needle" id="rpmNeedle"></div>
+                    <span style="color:white; font-size:9px; margin-top:60px;">RPM x1000</span>
                 </div>
-                <input type="range" id="pedal" min="0" max="8000" value="0">
-                <div style="color:#00d4ff; margin-top:10px;">RPM: <span id="rpmVal">0</span></div>
+                <div class="warning-lights">
+                    <div id="bat" class="light">🔋</div>
+                    <div id="oil" class="light">🛢️</div>
+                    <div id="chk" class="light">⚙️</div>
+                </div>
+                <div class="gauge">
+                    <div class="needle" id="tempNeedle" style="transform: rotate(-30deg);"></div>
+                    <span style="color:white; font-size:9px; margin-top:60px;">TEMP °C</span>
+                </div>
+            </div>
+
+            <div class="pedal-box">
+                <button class="start-btn" id="startBtn">تشغيل المحرك (START)</button>
+                <input type="range" id="gasPedal" min="0" max="8000" value="0">
+                <p style="color:#222; font-weight:bold; margin-top:10px;">السرعة: <span id="rpmLabel">0</span> RPM</p>
             </div>
         </div>
     </main>
 
     <script>
-        // وظيفة إظهار وإخفاء النوافذ
-        function toggleWindow(id) {
-            const win = document.getElementById(id);
-            win.style.display = (win.style.display === 'block') ? 'none' : 'block';
+        let audioCtx, oscillator, gainNode;
+        let isStarted = false;
+
+        const startBtn = document.getElementById('startBtn');
+        const pedal = document.getElementById('gasPedal');
+        const rpmNeedle = document.getElementById('rpmNeedle');
+        const rpmLabel = document.getElementById('rpmLabel');
+
+        // وظيفة توليد صوت المحرك
+        function initAudio() {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            oscillator = audioCtx.createOscillator();
+            gainNode = audioCtx.createGain();
+
+            oscillator.type = 'sawtooth'; // موجة صوتية تشبه صوت المحرك
+            oscillator.frequency.setValueAtTime(50, audioCtx.currentTime); 
+            
+            gainNode.gain.setValueAtTime(0, audioCtx.currentTime); // صامت في البداية
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.start();
         }
 
-        // تحريك العداد
-        const pedal = document.getElementById('pedal');
-        const needle = document.getElementById('needle');
-        const rpmVal = document.getElementById('rpmVal');
+        startBtn.onclick = () => {
+            if (!audioCtx) initAudio();
+            if (!isStarted) {
+                gainNode.gain.setTargetAtTime(0.1, audioCtx.currentTime, 0.1);
+                startBtn.innerText = "إيقاف المحرك (STOP)";
+                startBtn.style.background = "#c0392b";
+                document.getElementById('bat').classList.add('active');
+                isStarted = true;
+            } else {
+                gainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
+                startBtn.innerText = "تشغيل المحرك (START)";
+                startBtn.style.background = "#27ae60";
+                document.querySelectorAll('.light').forEach(l => l.classList.remove('active'));
+                isStarted = false;
+                pedal.value = 0;
+                updateRPM(0);
+            }
+        };
 
-        pedal.addEventListener('input', (e) => {
+        pedal.oninput = (e) => {
+            if (!isStarted) { e.target.value = 0; return; }
             let val = e.target.value;
-            let deg = (val / 8000) * 180 - 90;
-            needle.style.transform = `rotate(${deg}deg)`;
-            rpmVal.innerText = val;
-        });
+            updateRPM(val);
+        };
 
-        // كود لجعل النافذة قابلة للسحب (Drag and Drop)
-        const windows = document.querySelectorAll('.window');
-        windows.forEach(win => {
-            let isDragging = false;
-            win.addEventListener('mousedown', (e) => {
-                isDragging = true;
-                let offset = [win.offsetLeft - e.clientX, win.offsetTop - e.clientY];
-                document.onmousemove = (ev) => {
-                    if (isDragging) {
-                        win.style.left = (ev.clientX + offset[0]) + 'px';
-                        win.style.top = (ev.clientY + offset[1]) + 'px';
-                    }
-                }
-            });
-            document.addEventListener('mouseup', () => isDragging = false);
-        });
+        function updateRPM(val) {
+            // تحريك الإبرة
+            let deg = (val / 8000) * 180 - 90;
+            rpmNeedle.style.transform = `rotate(${deg}deg)`;
+            rpmLabel.innerText = val;
+
+            // تغيير تردد الصوت بناءً على الـ RPM
+            if (isStarted) {
+                let freq = 50 + (val / 20); // تردد صوت المحرك
+                oscillator.frequency.setTargetAtTime(freq, audioCtx.currentTime, 0.05);
+            }
+        }
+
+        // كود تحريك النافذة (Drag)
+        const dash = document.getElementById('dash');
+        let isDragging = false;
+        dash.onmousedown = (e) => { 
+            if(e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+            isDragging = true; 
+        };
+        document.onmousemove = (e) => {
+            if (isDragging) {
+                dash.style.left = e.clientX - 190 + 'px';
+                dash.style.top = e.clientY - 100 + 'px';
+            }
+        };
+        document.onmouseup = () => isDragging = false;
     </script>
 </body>
 </html>
