@@ -1,4 +1,29 @@
-body { background-color: #1a1a1a; color: white; font-family: sans-serif; }
+.gauge-container {
+    position: relative;
+    width: 250px; /* حسب حجم صورتك */
+    height: 250px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.gauge-bg {
+    width: 100%;
+    position: absolute;
+}
+
+.needle {
+    position: absolute;
+    width: 4px;
+    height: 80px;
+    background: red; /* لون الإبرة */
+    bottom: 50%; /* تبدأ من المنتصف */
+    transform-origin: bottom center; /* لكي تدور من القاعدة وليس من الوسط */
+    transform: rotate(-90deg); /* الزاوية الابتدائية (الصفر) */
+    transition: transform 0.5s ease; /* حركة ناعمة */
+    z-index: 2;
+    box-shadow: 0 0 5px rgba(0,0,0,0.5);
+} { background-color: #1a1a1a; color: white; font-family: sans-serif; }
 
 .dashboard-container {
     background: linear-gradient(145deg, #444, #222);
