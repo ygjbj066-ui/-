@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>محاكي السيارة</title>
+</head>
+<body>
+
+<h2>محاكي أعطال السيارات</h2>
+
+<p>عدد دورات المحرك في الدقيقة: <span id="rpm">800</span></p>
+<p>MAF: <span id="maf">2.5</span> فولت</p>
+
+<button onclick="setState('good')">MAF سليم</button>
+<button onclick="setState('dirty')">MAF متسخ</button>
+<button onclick="setState('disconnect')">MAF مفصول</button>
+
+<p id="msg"></p>
+
+<script src="script.js"></script>
+</body>
+</html>
