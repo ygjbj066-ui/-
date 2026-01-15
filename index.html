@@ -2,144 +2,197 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>محاكي تشخيص الأعطال - نظام كامل</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محاكي مهندس السيارات المحترف</title>
     <style>
-        * { box-sizing: border-box; }
-        body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: #2c3e50; display: flex; height: 100vh; overflow: hidden; }
+        :root {
+            --sidebar-width: 260px;
+            --primary-red: #e74c3c;
+            --bg-dark: #1e1e1e;
+        }
 
-        /* القائمة الجانبية (الأدوات) */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background-color: #34495e;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* القائمة الجانبية */
         .sidebar {
-            width: 250px;
-            background-color: #ffffff;
+            width: var(--sidebar-width);
+            background: #ffffff;
             border-left: 2px solid #ddd;
             display: flex;
             flex-direction: column;
-            padding: 10px;
-            box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+            z-index: 100;
         }
 
+        .sidebar-header {
+            padding: 20px;
+            background: var(--primary-red);
+            color: white;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .tool-list { list-style: none; overflow-y: auto; }
+
         .tool-item {
-            padding: 12px;
+            padding: 15px 20px;
             border-bottom: 1px solid #eee;
-            color: #333;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 14px;
+            gap: 12px;
+            transition: 0.2s;
+            color: #2c3e50;
         }
 
-        .tool-item:hover { background-color: #f5f5f5; }
+        .tool-item:hover { background: #f8f9fa; color: var(--primary-red); }
+        .tool-item i { font-style: normal; font-size: 1.2rem; }
 
-        /* منطقة العمل المركزية */
-        .workspace {
+        /* منطقة العمل الرئيسية */
+        .main-stage {
             flex-grow: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             position: relative;
-            background: radial-gradient(circle, #444, #111);
-        }
-
-        /* لوحة العدادات (المحاكي) */
-        .dashboard-panel {
-            background: linear-gradient(145deg, #bdc3c7, #95a5a6);
-            padding: 25px;
-            border-radius: 20px;
-            width: 500px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-        }
-
-        .gauges-row { display: flex; justify-content: space-around; margin-bottom: 20px; }
-
-        .gauge {
-            width: 140px; height: 140px;
-            background: #000;
-            border: 6px solid #333;
-            border-radius: 50%;
-            position: relative;
+            background: radial-gradient(circle, #555, #111);
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        .needle {
+        .car-view {
+            width: 80%;
+            max-width: 800px;
+            filter: drop-shadow(0 20px 30px rgba(0,0,0,0.5));
+        }
+
+        /* النوافذ المنبثقة (Floating Windows) */
+        .window {
             position: absolute;
-            width: 3px; height: 60px;
-            background: #e74c3c;
-            bottom: 50%;
+            background: #ecf0f1;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            padding: 20px;
+            width: 320px;
+            display: none; /* مخفية افتراضياً */
+            cursor: move;
+            z-index: 200;
+        }
+
+        .window-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #bdc3c7;
+            padding-bottom: 5px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .close-btn { cursor: pointer; color: red; }
+
+        /* تصميم لوحة القيادة داخل النافذة */
+        .dash-ui {
+            background: #111;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .gauge-small {
+            width: 120px; height: 120px;
+            border: 5px solid #333;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            position: relative;
+        }
+
+        .needle-small {
+            position: absolute;
+            width: 2px; height: 50px;
+            background: red;
+            bottom: 50%; left: 50%;
             transform-origin: bottom center;
             transform: rotate(-90deg);
-            transition: transform 0.1s;
         }
 
-        .warning-lights {
-            display: flex; flex-direction: column; gap: 10px;
-            background: #111; padding: 10px; border-radius: 8px;
-        }
-
-        .light { font-size: 20px; opacity: 0.1; filter: grayscale(1); cursor: pointer; }
-        .light.active { opacity: 1; filter: grayscale(0); }
-
-        .controls { margin-top: 20px; text-align: center; color: #333; }
-        input[type=range] { width: 100%; }
-
+        input[type=range] { width: 100%; margin-top: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div class="workspace">
-        <div class="dashboard-panel">
-            <div class="gauges-row">
-                <div class="gauge">
-                    <div class="needle" id="rpmNeedle"></div>
-                    <span style="position:absolute; bottom:20%; font-size:10px; color:white;">RPM</span>
-                </div>
+    <aside class="sidebar">
+        <div class="sidebar-header">محاكي Electude</div>
+        <ul class="tool-list">
+            <li class="tool-item" onclick="toggleWindow('dashWindow')">🔑 <span>لوحة القيادة</span></li>
+            <li class="tool-item">📟 <span>مقياس متعدد (Multimeter)</span></li>
+            <li class="tool-item">📉 <span>كاشف الاهتزازات</span></li>
+            <li class="tool-item">💻 <span>نظام التشخيص</span></li>
+            <li class="tool-item">🔌 <span>مخطط الأسلاك</span></li>
+        </ul>
+    </aside>
 
-                <div class="warning-lights">
-                    <div class="light" id="bat">🔋</div>
-                    <div class="light" id="oil">🛢️</div>
-                    <div class="light" id="eng">⚙️</div>
-                </div>
+    <main class="main-stage">
+        <div style="color: white; text-align: center;">
+            <p>منطقة فحص المركبة</p>
+            <small>(تظهر هنا صورة السيارة من الأعلى أو المحرك)</small>
+        </div>
 
-                <div class="gauge">
-                    <div class="needle" id="tempNeedle" style="transform: rotate(-40deg);"></div>
-                    <span style="position:absolute; bottom:20%; font-size:10px; color:white;">TEMP</span>
-                </div>
+        <div id="dashWindow" class="window" style="top: 50px; left: 50px;">
+            <div class="window-header">
+                <span>لوحة التحكم</span>
+                <span class="close-btn" onclick="toggleWindow('dashWindow')">✖</span>
             </div>
-
-            <div class="controls">
+            <div class="dash-ui">
+                <div class="gauge-small">
+                    <div id="needle" class="needle-small"></div>
+                    <div style="color:white; font-size:10px; margin-top:80px;">RPM</div>
+                </div>
                 <input type="range" id="pedal" min="0" max="8000" value="0">
-                <p>دواسة الوقود: <span id="rpmVal">0</span></p>
+                <div style="color:#00d4ff; margin-top:10px;">RPM: <span id="rpmVal">0</span></div>
             </div>
         </div>
-    </div>
-
-    <div class="sidebar">
-        <h3 style="font-size: 16px; border-bottom: 2px solid #e74c3c; padding-bottom: 5px;">أدوات التشخيص</h3>
-        <div class="tool-item">🔑 لوحة القيادة</div>
-        <div class="tool-item">📟 مقياس متعدد (Multimeter)</div>
-        <div class="tool-item">📉 كاشف الاهتزازات</div>
-        <div class="tool-item">💻 نظام التشخيص</div>
-        <div class="tool-item">🔌 مخطط الأسلاك</div>
-        <div class="tool-item">📝 أمر العمل</div>
-    </div>
+    </main>
 
     <script>
-        const rpmNeedle = document.getElementById('rpmNeedle');
+        // وظيفة إظهار وإخفاء النوافذ
+        function toggleWindow(id) {
+            const win = document.getElementById(id);
+            win.style.display = (win.style.display === 'block') ? 'none' : 'block';
+        }
+
+        // تحريك العداد
         const pedal = document.getElementById('pedal');
+        const needle = document.getElementById('needle');
         const rpmVal = document.getElementById('rpmVal');
-        const engLight = document.getElementById('eng');
 
         pedal.addEventListener('input', (e) => {
             let val = e.target.value;
             let deg = (val / 8000) * 180 - 90;
-            rpmNeedle.style.transform = `rotate(${deg}deg)`;
+            needle.style.transform = `rotate(${deg}deg)`;
             rpmVal.innerText = val;
+        });
 
-            // محاكاة عطل: إذا زاد الـ RPM عن 7000 تضيء لمبة المحرك
-            if(val > 7000) engLight.classList.add('active');
-            else engLight.classList.remove('active');
+        // كود لجعل النافذة قابلة للسحب (Drag and Drop)
+        const windows = document.querySelectorAll('.window');
+        windows.forEach(win => {
+            let isDragging = false;
+            win.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                let offset = [win.offsetLeft - e.clientX, win.offsetTop - e.clientY];
+                document.onmousemove = (ev) => {
+                    if (isDragging) {
+                        win.style.left = (ev.clientX + offset[0]) + 'px';
+                        win.style.top = (ev.clientY + offset[1]) + 'px';
+                    }
+                }
+            });
+            document.addEventListener('mouseup', () => isDragging = false);
         });
     </script>
 </body>
