@@ -1,44 +1,10 @@
-<div class="gauge-container">
-    <img src="URL_الصورة_هنا" class="gauge-bg">
-    <div class="needle" id="rpmNeedle"></div>
-    <div class="gauge-value">RPM</div>
-</div><div class="dashboard-container">
-    <div class="gauges-row">
-        <div class="gauge-box">
-            <canvas id="rpmGauge"></canvas>
-            <p>RPM x1000</p>
-        </div>
-
-        <div class="warning-lights">
-            <div class="light battery">🔋</div>
-            <div class="light oil">🛢️</div>
-            <div class="light engine">⚙️</div>
-        </div>
-
-        <div class="gauge-box">
-            <canvas id="tempGauge"></canvas>
-            <p>°C Temp</p>
-        </div>
+<div class="dashboard-panel">
+    <div class="gauge-box">
+        <div class="needle" id="rpmNeedle"></div>
+        <div class="center-cap"></div>
     </div>
-
-    <div class="controls-row">
-        <div class="pedal-control">
-            <input type="range" min="0" max="100" value="0" id="gasPedal">
-            <label>Pedal Position</label>
-        </div>
-        
-        <div class="ignition-switch">
-            <div class="knob" id="knob"></div>
-            <p>Ignition</p>
-        </div>
+    <div class="controls">
+        <input type="range" id="pedal" min="0" max="8000" value="0">
+        <div class="rpm-text" id="rpmText">0 RPM</div>
     </div>
 </div>
-
-function updateRPM(value) {
-    // نفترض أن الـ 8000 RPM تساوي زاوية 180 درجة
-    const degrees = (value / 8000) * 180 - 90; 
-    document.getElementById('rpmNeedle').style.transform = `rotate(${degrees}deg)`;
-}
-
-// مثال: تحديث العداد إلى 3000 دورة
-updateRPM(3000);
