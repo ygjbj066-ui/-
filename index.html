@@ -33,3 +33,12 @@
         </div>
     </div>
 </div>
+
+function updateRPM(value) {
+    // نفترض أن الـ 8000 RPM تساوي زاوية 180 درجة
+    const degrees = (value / 8000) * 180 - 90; 
+    document.getElementById('rpmNeedle').style.transform = `rotate(${degrees}deg)`;
+}
+
+// مثال: تحديث العداد إلى 3000 دورة
+updateRPM(3000);
