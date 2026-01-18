@@ -1,152 +1,21 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>محاكي سوناتا 2011 - نظام صوتي وفحص متكامل</title>
-    <style>
-        :root { --main-red: #e74c3c; --bg-dark: #121212; }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background-color: var(--bg-dark); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; height: 100vh; overflow: hidden; }
+<h2>محاكي السيارة</h2>
 
-        /* القائمة الجانبية */
-        .sidebar { width: 250px; background: #ffffff; border-left: 1px solid #ddd; z-index: 100; display: flex; flex-direction: column; }
-        .sidebar-header { padding: 20px; background: var(--main-red); color: white; font-weight: bold; text-align: center; }
-        .tool-item { padding: 15px 20px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 10px; color: #333; }
-        .tool-item:hover { background: #fdf2f2; color: var(--main-red); }
+<div id="engine">
+  <p>RPM: <span id="rpm">800</span></p>
+  <p>حرارة المحرك: <span id="temp">90</span>°C</p>
+</div>
 
-        /* منطقة العمل */
-        .workspace { flex-grow: 1; position: relative; background: radial-gradient(circle, #333, #000); display: flex; justify-content: center; align-items: center; }
-        .car-img { width: 85%; max-width: 800px; filter: drop-shadow(0 20px 40px rgba(0,0,0,0.8)); }
+<hr>
 
-        /* النوافذ العائمة */
-        .window { position: absolute; background: #f4f7f6; border-radius: 12px; padding: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); display: none; z-index: 200; border: 2px solid #bdc3c7; cursor: move; }
-        .win-header { display: flex; justify-content: space-between; font-weight: bold; border-bottom: 2px solid #ddd; margin-bottom: 15px; padding-bottom: 5px; color: #2c3e50; }
-        .close-btn { color: #e74c3c; cursor: pointer; font-size: 18px; }
+<h3>الحساسات</h3>
+<button onclick="selectSensor('maf')">MAF</button>
+<button onclick="selectSensor('tps')">TPS</button>
+<button onclick="selectSensor('ect')">ECT</button>
 
-        /* واجهة العدادات */
-        .dash-container { background: #111; padding: 20px; border-radius: 15px; border: 4px solid #333; width: 320px; text-align: center; }
-        .gauge { width: 130px; height: 130px; border: 5px solid #222; border-radius: 50%; margin: 0 auto; position: relative; display: flex; justify-content: center; align-items: center; background: radial-gradient(circle, #222, #000); }
-        .needle { position: absolute; width: 3px; height: 55px; background: #ff0000; bottom: 50%; transform-origin: bottom center; transform: rotate(-90deg); transition: transform 0.05s linear; }
-        .rpm-text { color: #00d4ff; font-family: monospace; font-size: 20px; margin-top: 15px; }
-        .btn-start { width: 100%; padding: 12px; margin-top: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; transition: 0.3s; }
+<hr>
 
-        /* واجهة الملتيميتر */
-        .multi-ui { background: #f1c40f; padding: 20px; border-radius: 10px; border: 5px solid #d4ac0d; width: 200px; text-align: center; }
-        .m-display { background: #8ba396; color: #111; font-family: 'Courier New', monospace; font-size: 26px; padding: 10px; border-radius: 5px; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); margin-bottom: 10px; }
-    </style>
-</head>
-<body>
+<h3>الملتيميتر</h3>
+<p>الحساس المختار: <span id="current">MAF</span></p>
+<p>القراءة: <span id="meter">2.5</span> V</p>
 
-    <aside class="sidebar">
-        <div class="sidebar-header">نظام فحص سوناتا 2011</div>
-        <div class="tool-item" onclick="toggleWin('dashWin')">🔑 لوحة القيادة</div>
-        <div class="tool-item" onclick="toggleWin('multiWin')">📟 الملتيميتر (Multimeter)</div>
-        <div class="tool-item">🔌 مخطط الأسلاك</div>
-    </aside>
-
-    <main class="workspace">
-        <img src="https://www.pngall.com/wp-content/uploads/2016/07/Hyundai-Sonata-PNG-Image.png" class="car-img" alt="Sonata 2011">
-
-        <div id="dashWin" class="window" style="top: 20px; right: 20px;">
-            <div class="win-header"><span>لوحة التحكم</span> <span class="close-btn" onclick="toggleWin('dashWin')">✖</span></div>
-            <div class="dash-container">
-                <div class="gauge"><div id="needle" class="needle"></div></div>
-                <div class="rpm-text">RPM: <span id="rpmVal">0</span></div>
-                <input type="range" id="pedal" min="0" max="8000" value="0" style="width:100%; margin-top:20px;">
-                <button id="startBtn" class="btn-start" style="background: #27ae60;">تشغيل المحرك (START)</button>
-            </div>
-        </div>
-
-        <div id="multiWin" class="window" style="bottom: 50px; left: 50px;">
-            <div class="win-header"><span>Multimeter</span> <span class="close-btn" onclick="toggleWin('multiWin')">✖</span></div>
-            <div class="multi-ui">
-                <div id="mDisplay" class="m-display">0.00 V</div>
-                <div style="font-size: 11px; font-weight: bold; color: #333;">HYUNDAI DIAGNOSTIC</div>
-            </div>
-        </div>
-    </main>
-
-    <script>
-        let audioCtx, osc, gain;
-        let isRunning = false;
-
-        // إظهار وإخفاء النوافذ
-        function toggleWin(id) {
-            const win = document.getElementById(id);
-            win.style.display = (win.style.display === 'block') ? 'none' : 'block';
-        }
-
-        // جعل النوافذ قابلة للسحب
-        document.querySelectorAll('.window').forEach(win => {
-            win.onmousedown = (e) => {
-                if(e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
-                let ox = e.clientX - win.offsetLeft;
-                let oy = e.clientY - win.offsetTop;
-                document.onmousemove = (ev) => {
-                    win.style.left = ev.clientX - ox + 'px';
-                    win.style.top = ev.clientY - oy + 'px';
-                };
-            };
-            document.onmouseup = () => document.onmousemove = null;
-        });
-
-        // نظام الصوت (Web Audio API) لمحاكاة المحرك
-        function initAudio() {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            osc = audioCtx.createOscillator();
-            gain = audioCtx.createGain();
-            osc.type = 'sawtooth'; // صوت خشن يشبه المحرك
-            osc.frequency.setValueAtTime(45, audioCtx.currentTime); 
-            gain.gain.setValueAtTime(0, audioCtx.currentTime);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-        }
-
-        const startBtn = document.getElementById('startBtn');
-        const pedal = document.getElementById('pedal');
-        const needle = document.getElementById('needle');
-        const rpmVal = document.getElementById('rpmVal');
-        const mDisplay = document.getElementById('mDisplay');
-
-        startBtn.onclick = () => {
-            if (!audioCtx) initAudio();
-            if (!isRunning) {
-                isRunning = true;
-                gain.gain.setTargetAtTime(0.1, audioCtx.currentTime, 0.1);
-                startBtn.innerText = "إيقاف المحرك (STOP)";
-                startBtn.style.background = "#c0392b";
-            } else {
-                isRunning = false;
-                gain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
-                startBtn.innerText = "تشغيل المحرك (START)";
-                startBtn.style.background = "#27ae60";
-                pedal.value = 0;
-                updateEngine(0);
-            }
-        };
-
-        pedal.oninput = (e) => {
-            if (!isRunning) { e.target.value = 0; return; }
-            updateEngine(e.target.value);
-        };
-
-        function updateEngine(val) {
-            // تحديث العداد
-            let deg = (val / 8000) * 180 - 90;
-            needle.style.transform = `rotate(${deg}deg)`;
-            rpmVal.innerText = val;
-
-            // تحديث الصوت بناءً على الـ RPM
-            if (isRunning) {
-                let freq = 45 + (val / 25); 
-                osc.frequency.setTargetAtTime(freq, audioCtx.currentTime, 0.05);
-            }
-
-            // تحديث الملتيميتر (محاكاة جهد الحساس)
-            let volt = (val / 8000 * 4.2) + 0.5;
-            mDisplay.innerText = volt.toFixed(2) + " V";
-        }
-    </script>
-</body>
-</html>
+<button onclick="measure()">قياس</button>
