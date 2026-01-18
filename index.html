@@ -1,21 +1,93 @@
-<h2>محاكي السيارة</h2>
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>محاكي السيارة</title>
+<style>
+body {
+  margin: 0;
+  background: #111;
+  font-family: Arial, sans-serif;
+}
 
-<div id="engine">
-  <p>RPM: <span id="rpm">800</span></p>
-  <p>حرارة المحرك: <span id="temp">90</span>°C</p>
+#simulator {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  margin: auto;
+}
+
+/* صورة المحرك */
+#engine {
+  width: 100%;
+  display: block;
+}
+
+/* صندوق الملتيميتر */
+#multimeter {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 180px;
+  background: #222;
+  border: 3px solid #f5a623;
+  border-radius: 12px;
+  padding: 10px;
+  color: #0f0;
+}
+
+#screen {
+  background: #000;
+  height: 40px;
+  margin-bottom: 10px;
+  text-align: center;
+  line-height: 40px;
+  font-size: 18px;
+}
+
+/* معلومات الحساسات */
+#panel {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background: rgba(0,0,0,0.7);
+  color: #fff;
+  padding: 10px;
+  border-radius: 8px;
+}
+</style>
+</head>
+
+<body>
+<div id="simulator">
+  <!-- ضع هنا صورة المحرك -->
+  <img id="engine" src="engine.jpg">
+
+  <!-- الملتيميتر -->
+  <div id="multimeter">
+    <div id="screen">0.00 V</div>
+    <button onclick="setMAF()">MAF</button>
+    <button onclick="setRPM()">RPM</button>
+  </div>
+
+  <!-- لوحة القيم -->
+  <div id="panel">
+    RPM: <span id="rpm">800</span><br>
+    MAF: <span id="maf">2.5</span> V
+  </div>
 </div>
 
-<hr>
+<script>
+let rpm = 800;
+let maf = 2.5;
 
-<h3>الحساسات</h3>
-<button onclick="selectSensor('maf')">MAF</button>
-<button onclick="selectSensor('tps')">TPS</button>
-<button onclick="selectSensor('ect')">ECT</button>
+function setMAF(){
+  document.getElementById("screen").innerText = maf + " V";
+}
 
-<hr>
-
-<h3>الملتيميتر</h3>
-<p>الحساس المختار: <span id="current">MAF</span></p>
-<p>القراءة: <span id="meter">2.5</span> V</p>
-
-<button onclick="measure()">قياس</button>
+function setRPM(){
+  document.getElementById("screen").innerText = rpm + " RPM";
+}
+</script>
+</body>
+</html>
